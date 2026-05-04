@@ -1,828 +1,750 @@
 <!DOCTYPE html>
-  <html lang="es">
-    <head>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Probabilidad: Distribuciones y Aproximación Normal</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-          
-          <!-- Integración de KaTeX para tipografía matemática -->
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-              <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-                <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                  renderMathInElement(document.body, {
-                    delimiters: [
-                      {left: '$$', right: '$$', display: true},
-                      {left: '\\(', right: '\\)', display: false},
-                      {left: '\\[', right: '\\]', display: true}
-                    ],
-                    throwOnError: false
-                  });
-                });
-              </script>
-                
-                <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
-              
-              body { font-family: 'Inter', sans-serif; background-color: #fff1f2; color: #0f172a; } /* rose-50 */
-                  code, pre { font-family: 'JetBrains Mono', monospace; }
-                
-                canvas {
-                  border: 1px solid #e2e8f0;
-                  background-color: #ffffff;
-                    border-radius: 0.5rem;
-                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Estilos para los sliders (Tema Rose) */
-                  input[type=range] {
-                    appearance: none;
-                    width: 100%;
-                    height: 6px;
-                    background: #ffe4e6; /* rose-100 */
-                      border-radius: 5px;
-                    outline: none;
-                  }
-                input[type=range]::-webkit-slider-thumb {
-                  appearance: none;
-                  width: 16px;
-                  height: 16px;
-                  border-radius: 50%;
-                  background: #e11d48; /* rose-600 */
-                    cursor: pointer;
-                  transition: transform 0.1s;
-                }
-                input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-                
-                .tab-btn.active {
-                  background-color: #e11d48;
-                    color: white;
-                  border-color: #e11d48;
-                }
-                select { cursor: pointer; }
-                </style>
-                  </head>
-                  <body class="min-h-screen flex flex-col items-center py-10 px-4 sm:px-8">
-                  
-                  <div class="max-w-7xl w-full bg-white shadow-xl rounded-2xl overflow-hidden border border-rose-100">
-                  
-                  <!-- Header -->
-                  <header class="bg-rose-900 text-white p-8 relative overflow-hidden">
-                  <div class="relative z-10">
-                  <h1 class="text-3xl font-bold mb-2">Probabilidad y Estadística</h1>
-                  <h2 class="text-xl text-rose-200">Distribuciones: Binomial, Poisson y Normal</h2>
-                  <p class="mt-4 text-sm text-rose-300 font-medium">Programas de Ingeniería en Computación e Ingeniería de Software - UAZ | Laboratorio de Análisis con R</p>
-                  </div>
-                  <!-- Decoración -->
-                  <div class="absolute -right-4 -top-10 opacity-20 pointer-events-none text-[12rem] font-serif italic">
-                  &mu; &sigma;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probabilidad: Distribuciones y Aproximación Normal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Integración de KaTeX para tipografía matemática -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #fff1f2; color: #0f172a; } /* rose-50 */
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+
+        canvas {
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn.active {
+            background-color: #e11d48;
+            color: white;
+            border-color: #e11d48;
+        }
+        select { cursor: pointer; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4 sm:px-8">
+
+    <div class="max-w-7xl w-full bg-white shadow-xl rounded-2xl overflow-hidden border border-rose-100">
+        
+        <!-- Header -->
+        <header class="bg-rose-900 text-white p-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <h1 class="text-3xl font-bold mb-2">Probabilidad y Estadística</h1>
+                <h2 class="text-xl text-rose-200">Distribuciones: Binomial, Poisson y Normal</h2>
+                <p class="mt-4 text-sm text-rose-300 font-medium">Programa Analítico IC - UAZ | Laboratorio de Análisis con R</p>
+            </div>
+            <!-- Decoración -->
+            <div class="absolute -right-4 -top-10 opacity-20 pointer-events-none text-[12rem] font-serif italic">
+                &mu; &sigma;
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="p-8 space-y-10">
+            
+            <!-- Teoría -->
+            <section>
+                <h3 class="text-2xl font-semibold text-rose-800 border-b-2 border-rose-100 pb-2 mb-4">1. Fundamentos de las Distribuciones</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
+                    <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
+                        <h4 class="font-bold text-lg text-rose-800 mb-2">Binomial (Discreta)</h4>
+                        <p class="mb-3 text-xs text-gray-600">Modela el número de éxitos en \(n\) ensayos independientes, donde cada ensayo tiene una probabilidad de éxito \(p\).</p>
+                        <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
+                            $$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
+                        </div>
+                    </div>
+                    
+                    <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
+                        <h4 class="font-bold text-lg text-rose-800 mb-2">Poisson (Discreta)</h4>
+                        <p class="mb-3 text-xs text-gray-600">Modela la cantidad de eventos que ocurren en un intervalo de tiempo o espacio, dada una tasa promedio \(\lambda\).</p>
+                        <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
+                            $$P(X=k) = \frac{e^{-\lambda} \lambda^k}{k!}$$
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
+                        <h4 class="font-bold text-lg text-rose-800 mb-2">Normal (Continua)</h4>
+                        <p class="mb-3 text-xs text-gray-600">La "Campana de Gauss". Es la distribución más importante de la estadística debido al <strong>Teorema del Límite Central</strong>.</p>
+                        <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
+                            $$f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
+                        </div>
+                    </div>
                 </div>
-                  </header>
-                  
-                  <!-- Contenido Principal -->
-                  <main class="p-8 space-y-10">
-                  
-                  <!-- Teoría -->
-                  <section>
-                  <h3 class="text-2xl font-semibold text-rose-800 border-b-2 border-rose-100 pb-2 mb-4">1. Fundamentos de las Distribuciones</h3>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700">
-                  <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
-                  <h4 class="font-bold text-lg text-rose-800 mb-2">Binomial (Discreta)</h4>
-                  <p class="mb-3 text-xs text-gray-600">Modela el número de éxitos en \(n\) ensayos independientes, donde cada ensayo tiene una probabilidad de éxito \(p\).</p>
-                  <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
-                  $$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
-                  </div>
-                  </div>
-                  
-                  <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
-                  <h4 class="font-bold text-lg text-rose-800 mb-2">Poisson (Discreta)</h4>
-                  <p class="mb-3 text-xs text-gray-600">Modela la cantidad de eventos que ocurren en un intervalo de tiempo o espacio, dada una tasa promedio \(\lambda\).</p>
-                  <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
-                  $$P(X=k) = \frac{e^{-\lambda} \lambda^k}{k!}$$
-                  </div>
-                  </div>
-                  
-                  <div class="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm">
-                  <h4 class="font-bold text-lg text-rose-800 mb-2">Normal (Continua)</h4>
-                  <p class="mb-3 text-xs text-gray-600">La "Campana de Gauss". Es la distribución más importante de la estadística debido al <strong>Teorema del Límite Central</strong>.</p>
-                  <div class="bg-white p-2 rounded text-center overflow-x-auto text-xs border border-rose-200">
-                  $$f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$
-                  </div>
-                  </div>
-                  </div>
-                  </section>
-                  
-                  <!-- Laboratorio Interactivo -->
-                  <section class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                  <h3 class="text-2xl font-semibold text-rose-800 mb-6">2. Laboratorio Interactivo y Calculadora</h3>
-                  
-                  <div class="flex flex-col xl:flex-row gap-8">
-                  
-                  <!-- Panel de Controles -->
-                  <div class="w-full xl:w-1/3 flex flex-col space-y-6">
-                  
-                  <!-- Pestañas de Selección -->
-                  <div class="flex rounded-md shadow-sm" role="group">
-                  <button type="button" onclick="setDist('binomial')" id="btn-binomial" class="tab-btn active w-1/3 px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg hover:bg-rose-50 hover:text-rose-700">Binomial</button>
-                  <button type="button" onclick="setDist('poisson')" id="btn-poisson" class="tab-btn w-1/3 px-4 py-2 text-sm font-medium border-t border-b border-gray-200 hover:bg-rose-50 hover:text-rose-700">Poisson</button>
-                  <button type="button" onclick="setDist('normal')" id="btn-normal" class="tab-btn w-1/3 px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg hover:bg-rose-50 hover:text-rose-700">Normal</button>
-                  </div>
-                  
-                  <!-- CONTROLES BINOMIAL -->
-                  <div id="controls-binomial" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Binomial)</h4>
-                  <div class="mb-4">
-                  <label class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                  <span>Ensayos (n):</span> <span id="n-val" class="text-rose-600">20</span>
-                  </label>
-                  <input type="range" id="slider-n" min="1" max="100" step="1" value="20">
-                  </div>
-                  <div class="mb-4">
-                  <label class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                  <span>Prob. de Éxito (p):</span> <span id="p-val" class="text-rose-600">0.50</span>
-                  </label>
-                  <input type="range" id="slider-p" min="0.01" max="0.99" step="0.01" value="0.5">
-                  </div>
-                  
-                  <!-- Calculadora Directa Binomial -->
-                  <div class="mt-4 pt-4 border-t border-gray-300">
-                  <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
-                  <select id="type-bin" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
-                  <option value="eq" selected>P(X = x) Exacta</option>
-                  <option value="le">P(X ≤ x) Cola Izquierda</option>
-                  <option value="ge">P(X ≥ x) Cola Derecha</option>
-                  <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
-                  </select>
-                  
-                  <div id="wrap-single-bin" class="mb-3">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Valor de x:</span> <span id="val-x-bin" class="text-rose-600">10</span>
-                  </label>
-                  <input type="range" id="x-bin" min="0" max="20" step="1" value="10">
-                  </div>
-                  
-                  <div id="wrap-range-bin" class="mb-3 hidden">
-                  <div class="mb-2">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite inferior (x₁):</span> <span id="val-x1-bin" class="text-rose-600">5</span>
-                  </label>
-                  <input type="range" id="x1-bin" min="0" max="20" step="1" value="5">
-                  </div>
-                  <div>
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite superior (x₂):</span> <span id="val-x2-bin" class="text-rose-600">15</span>
-                  </label>
-                  <input type="range" id="x2-bin" min="0" max="20" step="1" value="15">
-                  </div>
-                  </div>
-                  
-                  <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
-                  <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
-                  <div class="text-3xl font-mono font-bold text-rose-700" id="res-bin">0.0000</div>
-                  </div>
-                  </div>
-                  </div>
-                  
-                  <!-- CONTROLES POISSON -->
-                  <div id="controls-poisson" class="bg-gray-50 p-4 rounded-lg border border-gray-200 hidden">
-                  <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Poisson)</h4>
-                  <div class="mb-4">
-                  <label class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                  <span>Tasa Promedio (\(\lambda\)):</span> <span id="lambda-val" class="text-rose-600">5</span>
-                  </label>
-                  <input type="range" id="slider-lambda" min="1" max="50" step="1" value="5">
-                  </div>
-                  
-                  <!-- Calculadora Directa Poisson -->
-                  <div class="mt-4 pt-4 border-t border-gray-300">
-                  <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
-                  <select id="type-pois" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
-                  <option value="eq" selected>P(X = x) Exacta</option>
-                  <option value="le">P(X ≤ x) Cola Izquierda</option>
-                  <option value="ge">P(X ≥ x) Cola Derecha</option>
-                  <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
-                  </select>
-                  
-                  <div id="wrap-single-pois" class="mb-3">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Valor de x:</span> <span id="val-x-pois" class="text-rose-600">5</span>
-                  </label>
-                  <input type="range" id="x-pois" min="0" max="15" step="1" value="5">
-                  </div>
-                  
-                  <div id="wrap-range-pois" class="mb-3 hidden">
-                  <div class="mb-2">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite inferior (x₁):</span> <span id="val-x1-pois" class="text-rose-600">3</span>
-                  </label>
-                  <input type="range" id="x1-pois" min="0" max="15" step="1" value="3">
-                  </div>
-                  <div>
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite superior (x₂):</span> <span id="val-x2-pois" class="text-rose-600">8</span>
-                  </label>
-                  <input type="range" id="x2-pois" min="0" max="15" step="1" value="8">
-                  </div>
-                  </div>
-                  
-                  <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
-                  <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
-                  <div class="text-3xl font-mono font-bold text-rose-700" id="res-pois">0.0000</div>
-                  </div>
-                  </div>
-                  </div>
-                  
-                  <!-- CONTROLES NORMAL -->
-                  <div id="controls-normal" class="bg-gray-50 p-4 rounded-lg border border-gray-200 hidden">
-                  <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Normal)</h4>
-                  <div class="mb-4">
-                  <label class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                  <span>Media (\(\mu\)):</span> <span id="mu-val" class="text-rose-600">0</span>
-                  </label>
-                  <input type="range" id="slider-mu" min="-50" max="50" step="1" value="0">
-                  </div>
-                  <div class="mb-4">
-                  <label class="flex justify-between text-sm font-bold text-gray-700 mb-1">
-                  <span>Desv. Estándar (\(\sigma\)):</span> <span id="sigma-val" class="text-rose-600">1</span>
-                  </label>
-                  <input type="range" id="slider-sigma" min="0.1" max="10" step="0.1" value="1">
-                  </div>
-                  
-                  <!-- Calculadora Directa Normal -->
-                  <div class="mt-4 pt-4 border-t border-gray-300">
-                  <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
-                  <select id="type-norm" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
-                  <option value="le" selected>P(X ≤ x) Cola Izquierda</option>
-                  <option value="ge">P(X ≥ x) Cola Derecha</option>
-                  <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
-                  </select>
-                  
-                  <div id="wrap-single-norm" class="mb-3">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Valor de x:</span> <span id="val-x-norm" class="text-rose-600">0.0</span>
-                  </label>
-                  <input type="range" id="x-norm" min="-4" max="4" step="0.1" value="0">
-                  </div>
-                  
-                  <div id="wrap-range-norm" class="mb-3 hidden">
-                  <div class="mb-2">
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite inferior (x₁):</span> <span id="val-x1-norm" class="text-rose-600">-1.0</span>
-                  </label>
-                  <input type="range" id="x1-norm" min="-4" max="4" step="0.1" value="-1">
-                  </div>
-                  <div>
-                  <label class="flex justify-between text-xs font-bold text-gray-700 mb-1">
-                  <span>Límite superior (x₂):</span> <span id="val-x2-norm" class="text-rose-600">1.0</span>
-                  </label>
-                  <input type="range" id="x2-norm" min="-4" max="4" step="0.1" value="1">
-                  </div>
-                  </div>
-                  
-                  <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
-                  <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
-                  <div class="text-3xl font-mono font-bold text-rose-700" id="res-norm">0.0000</div>
-                  </div>
-                  </div>
-                  </div>
-                  
-                  <!-- Checkbox Aproximación (Visible solo en Binomial/Poisson) -->
-                  <div id="approx-container" class="bg-rose-50 p-4 rounded-lg border border-rose-200">
-                  <label class="flex items-center space-x-3 cursor-pointer">
-                  <input type="checkbox" id="check-approx" class="form-checkbox h-5 w-5 text-rose-600 rounded border-gray-300 focus:ring-rose-500">
-                  <span class="text-rose-900 font-bold text-sm">Mostrar Aproximación Normal</span>
-                  </label>
-                  <div id="approx-stats" class="mt-3 text-xs text-rose-800 font-mono hidden space-y-1">
-                  <p>Parámetros calculados (TLC):</p>
-                  <p>&mu; = <span id="calc-mu" class="font-bold">--</span></p>
-                  <p>&sigma; = <span id="calc-sigma" class="font-bold">--</span></p>
-                  </div>
-                  </div>
-                  
-                  </div>
-                  
-                  <!-- Panel del Gráfico (Canvas) -->
-                  <div class="w-full xl:w-2/3 bg-gray-50 p-2 rounded-xl border border-gray-200 relative">
-                  <canvas id="distCanvas" width="700" height="400" class="w-full h-auto bg-white rounded-lg"></canvas>
-                  
-                  <!-- Leyenda -->
-                  <div class="absolute top-4 right-4 bg-white/90 p-3 rounded shadow-sm text-xs border border-gray-200 font-mono flex flex-col gap-2">
-                  <span id="leg-discrete-base" class="flex items-center gap-2">
-                  <span class="w-1 h-4 bg-slate-300 block"></span> Espacio Muestral Base
-                </span>
-                  <span id="leg-discrete-calc" class="flex items-center gap-2">
-                  <span class="w-1 h-4 bg-rose-600 block"></span> Probabilidad Seleccionada
-                </span>
-                  <span id="leg-continuous" class="flex items-center gap-2 hidden">
-                  <span class="w-4 h-1 bg-rose-600 block rounded"></span> Densidad Normal f(x)
-                </span>
-                  <span id="leg-area" class="flex items-center gap-2 hidden">
-                  <span class="w-4 h-3 bg-rose-200 block rounded border border-rose-600"></span> Área P(X) Calculada
-                </span>
-                  </div>
-                  </div>
-                  
-                  </div>
-                  </section>
-                  
-                  <!-- Sección de Código R -->
-                  <section>
-                  <h3 class="text-2xl font-semibold text-rose-800 border-b-2 border-rose-100 pb-2 mb-4">3. Calculadora de Probabilidades en R</h3>
-                  <p class="text-gray-700 mb-4 text-sm">
-                  En <code>R</code>, las probabilidades acumuladas \(\le\) se calculan con el prefijo <code>p</code>. Para obtener intervalos o colas derechas, utilizamos propiedades básicas de la probabilidad complementaria.
+            </section>
+
+            <!-- Laboratorio Interactivo -->
+            <section class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <h3 class="text-2xl font-semibold text-rose-800 mb-6">2. Laboratorio Interactivo y Calculadora</h3>
+                
+                <div class="flex flex-col xl:flex-row gap-8">
+                    
+                    <!-- Panel de Controles -->
+                    <div class="w-full xl:w-1/3 flex flex-col space-y-6">
+                        
+                        <!-- Pestañas de Selección -->
+                        <div class="flex rounded-md shadow-sm" role="group">
+                            <button type="button" onclick="setDist('binomial')" id="btn-binomial" class="tab-btn active w-1/3 px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg hover:bg-rose-50 hover:text-rose-700">Binomial</button>
+                            <button type="button" onclick="setDist('poisson')" id="btn-poisson" class="tab-btn w-1/3 px-4 py-2 text-sm font-medium border-t border-b border-gray-200 hover:bg-rose-50 hover:text-rose-700">Poisson</button>
+                            <button type="button" onclick="setDist('normal')" id="btn-normal" class="tab-btn w-1/3 px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg hover:bg-rose-50 hover:text-rose-700">Normal</button>
+                        </div>
+
+                        <!-- CONTROLES BINOMIAL -->
+                        <div id="controls-binomial" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Binomial)</h4>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Ensayos (n):</label>
+                                <input type="number" id="input-n" min="1" step="1" value="20" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Prob. de Éxito (p):</label>
+                                <input type="number" id="input-p" min="0" max="1" step="any" value="0.5" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                            </div>
+
+                            <!-- Calculadora Directa Binomial -->
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
+                                <select id="type-bin" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
+                                    <option value="eq" selected>P(X = x) Exacta</option>
+                                    <option value="le">P(X ≤ x) Cola Izquierda</option>
+                                    <option value="ge">P(X ≥ x) Cola Derecha</option>
+                                    <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
+                                </select>
+                                
+                                <div id="wrap-single-bin" class="mb-3">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Valor de x:</label>
+                                    <input type="number" id="x-bin" min="0" step="1" value="10" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                </div>
+                                
+                                <div id="wrap-range-bin" class="mb-3 hidden">
+                                    <div class="mb-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite inferior (x₁):</label>
+                                        <input type="number" id="x1-bin" min="0" step="1" value="5" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite superior (x₂):</label>
+                                        <input type="number" id="x2-bin" min="0" step="1" value="15" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
+                                    <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
+                                    <div class="text-3xl font-mono font-bold text-rose-700" id="res-bin">0.0000</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONTROLES POISSON -->
+                        <div id="controls-poisson" class="bg-gray-50 p-4 rounded-lg border border-gray-200 hidden">
+                            <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Poisson)</h4>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Tasa Promedio (\(\lambda\)):</label>
+                                <input type="number" id="input-lambda" min="0.001" step="any" value="5" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                            </div>
+
+                            <!-- Calculadora Directa Poisson -->
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
+                                <select id="type-pois" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
+                                    <option value="eq" selected>P(X = x) Exacta</option>
+                                    <option value="le">P(X ≤ x) Cola Izquierda</option>
+                                    <option value="ge">P(X ≥ x) Cola Derecha</option>
+                                    <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
+                                </select>
+                                
+                                <div id="wrap-single-pois" class="mb-3">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Valor de x:</label>
+                                    <input type="number" id="x-pois" min="0" step="1" value="5" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                </div>
+                                
+                                <div id="wrap-range-pois" class="mb-3 hidden">
+                                    <div class="mb-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite inferior (x₁):</label>
+                                        <input type="number" id="x1-pois" min="0" step="1" value="3" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite superior (x₂):</label>
+                                        <input type="number" id="x2-pois" min="0" step="1" value="8" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
+                                    <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
+                                    <div class="text-3xl font-mono font-bold text-rose-700" id="res-pois">0.0000</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONTROLES NORMAL -->
+                        <div id="controls-normal" class="bg-gray-50 p-4 rounded-lg border border-gray-200 hidden">
+                            <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide border-b pb-1">Parámetros (Normal)</h4>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Media (\(\mu\)):</label>
+                                <input type="number" id="input-mu" step="any" value="0" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Desv. Estándar (\(\sigma\)):</label>
+                                <input type="number" id="input-sigma" min="0.001" step="any" value="1" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                            </div>
+
+                            <!-- Calculadora Directa Normal -->
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h5 class="text-xs font-bold text-gray-600 mb-3 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Calculadora</h5>
+                                <select id="type-norm" class="w-full p-2 mb-3 text-sm border border-gray-300 rounded text-rose-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-500">
+                                    <option value="le" selected>P(X ≤ x) Cola Izquierda</option>
+                                    <option value="ge">P(X ≥ x) Cola Derecha</option>
+                                    <option value="range">P(x₁ ≤ X ≤ x₂) Intervalo</option>
+                                </select>
+                                
+                                <div id="wrap-single-norm" class="mb-3">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Valor de x:</label>
+                                    <input type="number" id="x-norm" step="any" value="0" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                </div>
+                                
+                                <div id="wrap-range-norm" class="mb-3 hidden">
+                                    <div class="mb-2">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite inferior (x₁):</label>
+                                        <input type="number" id="x1-norm" step="any" value="-1" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Límite superior (x₂):</label>
+                                        <input type="number" id="x2-norm" step="any" value="1" class="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-rose-500 outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="bg-rose-100 p-3 rounded border border-rose-200 text-center shadow-inner">
+                                    <div class="text-[10px] text-rose-900 font-bold uppercase tracking-wider mb-1">Probabilidad Resultante</div>
+                                    <div class="text-3xl font-mono font-bold text-rose-700" id="res-norm">0.0000</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Checkbox Aproximación (Visible solo en Binomial/Poisson) -->
+                        <div id="approx-container" class="bg-rose-50 p-4 rounded-lg border border-rose-200">
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" id="check-approx" class="form-checkbox h-5 w-5 text-rose-600 rounded border-gray-300 focus:ring-rose-500">
+                                <span class="text-rose-900 font-bold text-sm">Mostrar Aproximación Normal</span>
+                            </label>
+                            <div id="approx-stats" class="mt-3 text-xs text-rose-800 font-mono hidden space-y-1">
+                                <p>Parámetros calculados (TLC):</p>
+                                <p>&mu; = <span id="calc-mu" class="font-bold">--</span></p>
+                                <p>&sigma; = <span id="calc-sigma" class="font-bold">--</span></p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Panel del Gráfico (Canvas) -->
+                    <div class="w-full xl:w-2/3 bg-gray-50 p-2 rounded-xl border border-gray-200 relative">
+                        <canvas id="distCanvas" width="700" height="400" class="w-full h-auto bg-white rounded-lg"></canvas>
+                        
+                        <!-- Leyenda -->
+                        <div class="absolute top-4 right-4 bg-white/90 p-3 rounded shadow-sm text-xs border border-gray-200 font-mono flex flex-col gap-2">
+                            <span id="leg-discrete-base" class="flex items-center gap-2">
+                                <span class="w-1 h-4 bg-slate-300 block"></span> Espacio Muestral Base
+                            </span>
+                            <span id="leg-discrete-calc" class="flex items-center gap-2">
+                                <span class="w-1 h-4 bg-rose-600 block"></span> Probabilidad Seleccionada
+                            </span>
+                            <span id="leg-continuous" class="flex items-center gap-2 hidden">
+                                <span class="w-4 h-1 bg-rose-600 block rounded"></span> Densidad Normal f(x)
+                            </span>
+                            <span id="leg-area" class="flex items-center gap-2 hidden">
+                                <span class="w-4 h-3 bg-rose-200 block rounded border border-rose-600"></span> Área P(X) Calculada
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Sección de Código R -->
+            <section>
+                <h3 class="text-2xl font-semibold text-rose-800 border-b-2 border-rose-100 pb-2 mb-4">3. Calculadora de Probabilidades en R</h3>
+                <p class="text-gray-700 mb-4 text-sm">
+                    En <code>R</code>, las probabilidades acumuladas \(\le\) se calculan con el prefijo <code>p</code>. Para obtener intervalos o colas derechas, utilizamos propiedades básicas de la probabilidad complementaria.
                 </p>
-                  <div class="bg-[#1e1e1e] rounded-lg overflow-hidden shadow-lg">
-                  <div class="bg-[#2d2d2d] px-4 py-2 text-xs text-gray-400 font-mono flex justify-between items-center">
-                  <span>probabilidades_R_ejemplos.R</span>
-                  <button onclick="copyCode()" class="hover:text-white transition-colors bg-rose-700 px-3 py-1 rounded text-white font-semibold">Copiar Código</button>
-                  </div>
-                  <pre class="text-sm p-6 overflow-x-auto text-gray-300"><code id="r-code"><span class="text-gray-400"># =====================================================================</span>
-                  <span class="text-gray-400"># CÁLCULO DE PROBABILIDADES EN R</span>
-                  <span class="text-gray-400"># =====================================================================</span>
-                  
-                  <span class="text-gray-400"># --- 1. DISTRIBUCIÓN BINOMIAL (n = 20, p = 0.5) ---</span>
-                  n <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">20</span>; p <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">0.5</span>
-                  
-                  <span class="text-gray-400"># Exacta P(X = 10)</span>
-                  <span class="text-blue-400">dbinom</span>(<span class="text-orange-300">10</span>, size = n, prob = p)
+                <div class="bg-[#1e1e1e] rounded-lg overflow-hidden shadow-lg">
+                    <div class="bg-[#2d2d2d] px-4 py-2 text-xs text-gray-400 font-mono flex justify-between items-center">
+                        <span>probabilidades_R_ejemplos.R</span>
+                        <button onclick="copyCode()" class="hover:text-white transition-colors bg-rose-700 px-3 py-1 rounded text-white font-semibold">Copiar Código</button>
+                    </div>
+<pre class="text-sm p-6 overflow-x-auto text-gray-300"><code id="r-code"><span class="text-gray-400"># =====================================================================</span>
+<span class="text-gray-400"># CÁLCULO DE PROBABILIDADES EN R</span>
+<span class="text-gray-400"># =====================================================================</span>
+
+<span class="text-gray-400"># --- 1. DISTRIBUCIÓN BINOMIAL (n = 20, p = 0.5) ---</span>
+n <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">20</span>; p <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">0.5</span>
+
+<span class="text-gray-400"># Exacta P(X = 10)</span>
+<span class="text-blue-400">dbinom</span>(<span class="text-orange-300">10</span>, size = n, prob = p)
+
+<span class="text-gray-400"># Cola Izquierda P(X <= 10)</span>
+<span class="text-blue-400">pbinom</span>(<span class="text-orange-300">10</span>, size = n, prob = p)
+
+<span class="text-gray-400"># Cola Derecha P(X >= 10)  =>  1 - P(X <= 9)</span>
+<span class="text-orange-300">1</span> - <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">9</span>, size = n, prob = p)
+
+<span class="text-gray-400"># Intervalo P(5 <= X <= 15) => P(X <= 15) - P(X <= 4)</span>
+<span class="text-blue-400">pbinom</span>(<span class="text-orange-300">15</span>, size = n, prob = p) - <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">4</span>, size = n, prob = p)
+
+
+<span class="text-gray-400"># --- 2. DISTRIBUCIÓN DE POISSON (lambda = 5) ---</span>
+l <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">5</span>
+
+<span class="text-gray-400"># Exacta P(X = 5)</span>
+<span class="text-blue-400">dpois</span>(<span class="text-orange-300">5</span>, lambda = l)
+
+<span class="text-gray-400"># Cola Izquierda P(X <= 5)</span>
+<span class="text-blue-400">ppois</span>(<span class="text-orange-300">5</span>, lambda = l)
+
+
+<span class="text-gray-400"># --- 3. DISTRIBUCIÓN NORMAL (mu = 0, sigma = 1) ---</span>
+mu <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">0</span>; sigma <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">1</span>
+
+<span class="text-gray-400"># Cola Izquierda P(X <= 1.96)</span>
+<span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma)
+
+<span class="text-gray-400"># Cola Derecha P(X >= 1.96)</span>
+<span class="text-orange-300">1</span> - <span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma)
+<span class="text-gray-400"># Alternativa elegante en R:</span>
+<span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma, lower.tail = <span class="text-purple-400">FALSE</span>)
+
+<span class="text-gray-400"># Intervalo P(-1 <= X <= 1) => P(X <= 1) - P(X <= -1)</span>
+<span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1</span>, mean = mu, sd = sigma) - <span class="text-blue-400">pnorm</span>(-<span class="text-orange-300">1</span>, mean = mu, sd = sigma)
+</code></pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // ==========================================
+        // ESTADO Y REFERENCIAS UI
+        // ==========================================
+        let currentDist = 'binomial';
+        
+        // Botones Tabs
+        const btnB = document.getElementById('btn-binomial');
+        const btnP = document.getElementById('btn-poisson');
+        const btnN = document.getElementById('btn-normal');
+        
+        // Paneles de Controles
+        const ctrlB = document.getElementById('controls-binomial');
+        const ctrlP = document.getElementById('controls-poisson');
+        const ctrlN = document.getElementById('controls-normal');
+        const approxContainer = document.getElementById('approx-container');
+        
+        // Inputs Parámetros Generales
+        const inN = document.getElementById('input-n'); 
+        const inP = document.getElementById('input-p'); 
+        const inLambda = document.getElementById('input-lambda'); 
+        const inMu = document.getElementById('input-mu'); 
+        const inSigma = document.getElementById('input-sigma'); 
+        
+        // Elementos Calculadora - Tipos de cálculo
+        const tBin = document.getElementById('type-bin');
+        const tPois = document.getElementById('type-pois');
+        const tNorm = document.getElementById('type-norm');
+
+        // Elementos Calculadora - Inputs (Binomial)
+        const xBin = document.getElementById('x-bin');
+        const x1Bin = document.getElementById('x1-bin');
+        const x2Bin = document.getElementById('x2-bin');
+        
+        // Elementos Calculadora - Inputs (Poisson)
+        const xPois = document.getElementById('x-pois');
+        const x1Pois = document.getElementById('x1-pois');
+        const x2Pois = document.getElementById('x2-pois');
+
+        // Elementos Calculadora - Inputs (Normal)
+        const xNorm = document.getElementById('x-norm');
+        const x1Norm = document.getElementById('x1-norm');
+        const x2Norm = document.getElementById('x2-norm');
+
+        // Resultados mostrados en pantalla
+        const resBin = document.getElementById('res-bin');
+        const resPois = document.getElementById('res-pois');
+        const resNorm = document.getElementById('res-norm');
+
+        // Approx
+        const chkApprox = document.getElementById('check-approx');
+        const approxStats = document.getElementById('approx-stats');
+        const calcMu = document.getElementById('calc-mu');
+        const calcSigma = document.getElementById('calc-sigma');
+
+        // Canvas & Leyendas
+        const canvas = document.getElementById('distCanvas');
+        const ctx = canvas.getContext('2d');
+        const legDBase = document.getElementById('leg-discrete-base');
+        const legDCalc = document.getElementById('leg-discrete-calc');
+        const legCont = document.getElementById('leg-continuous');
+        const legArea = document.getElementById('leg-area');
+
+        // ==========================================
+        // FUNCIONES MATEMÁTICAS ESTADÍSTICAS
+        // ==========================================
+
+        function dbinom(k, n, p) {
+            if (k < 0 || k > n) return 0;
+            if (p === 0) return k === 0 ? 1 : 0;
+            if (p === 1) return k === n ? 1 : 0;
+            let c = 1;
+            for (let i = 1; i <= Math.min(k, n - k); i++) c = c * (n - i + 1) / i;
+            return c * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        }
+
+        function pbinom(k, n, p) {
+            if (k < 0) return 0;
+            let sum = 0;
+            for(let i=0; i<=k; i++) sum += dbinom(i, n, p);
+            return sum;
+        }
+
+        function dpois(k, lambda) {
+            if (k < 0) return 0;
+            let prob = Math.exp(-lambda);
+            for(let i=1; i<=k; i++) prob *= (lambda / i);
+            return prob;
+        }
+
+        function ppois(k, lambda) {
+            if (k < 0) return 0;
+            let sum = 0;
+            for(let i=0; i<=k; i++) sum += dpois(i, lambda);
+            return sum;
+        }
+
+        function dnorm(x, mu, sigma) {
+            return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+        }
+
+        // Función de Error (Aproximación de Abramowitz and Stegun) para CDF Normal
+        function erf(x) {
+            let sign = (x >= 0) ? 1 : -1;
+            x = Math.abs(x);
+            let a1 =  0.254829592, a2 = -0.284496736, a3 =  1.421413741, a4 = -1.453152027, a5 =  1.061405429;
+            let p  =  0.3275911;
+            let t = 1.0 / (1.0 + p * x);
+            let y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
+        }
+
+        function pnorm(x, mu, sigma) {
+            return 0.5 * (1 + erf((x - mu) / (Math.sqrt(2) * sigma)));
+        }
+
+        // ==========================================
+        // LÓGICA DE INTERFAZ Y ACTUALIZACIÓN
+        // ==========================================
+
+        function setDist(dist) {
+            currentDist = dist;
+            
+            // Reset de visibilidad principal
+            [btnB, btnP, btnN].forEach(b => b.classList.remove('active'));
+            [ctrlB, ctrlP, ctrlN].forEach(c => c.classList.add('hidden'));
+            
+            if(dist === 'binomial') {
+                btnB.classList.add('active'); ctrlB.classList.remove('hidden');
+                approxContainer.classList.remove('hidden');
+                legDBase.classList.remove('hidden'); legDCalc.classList.remove('hidden');
+                legCont.classList.add('hidden'); legArea.classList.add('hidden');
+            } else if(dist === 'poisson') {
+                btnP.classList.add('active'); ctrlP.classList.remove('hidden');
+                approxContainer.classList.remove('hidden');
+                legDBase.classList.remove('hidden'); legDCalc.classList.remove('hidden');
+                legCont.classList.add('hidden'); legArea.classList.add('hidden');
+            } else {
+                btnN.classList.add('active'); ctrlN.classList.remove('hidden');
+                approxContainer.classList.add('hidden');
+                chkApprox.checked = false;
+                legDBase.classList.add('hidden'); legDCalc.classList.add('hidden');
+                legCont.classList.remove('hidden'); legArea.classList.remove('hidden');
+            }
+            updateInputVisibility();
+            drawDistribution();
+        }
+
+        // Alternar entre control Único (x) y Rango (x1, x2) según la selección
+        function updateInputVisibility() {
+            ['bin', 'pois', 'norm'].forEach(dist => {
+                const typeEl = document.getElementById(`type-${dist}`);
+                const wrapSingle = document.getElementById(`wrap-single-${dist}`);
+                const wrapRange = document.getElementById(`wrap-range-${dist}`);
                 
-                <span class="text-gray-400"># Cola Izquierda P(X <= 10)</span>
-                  <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">10</span>, size = n, prob = p)
-                
-                <span class="text-gray-400"># Cola Derecha P(X >= 10)  =>  1 - P(X <= 9)</span>
-                  <span class="text-orange-300">1</span> - <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">9</span>, size = n, prob = p)
-                
-                <span class="text-gray-400"># Intervalo P(5 <= X <= 15) => P(X <= 15) - P(X <= 4)</span>
-                  <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">15</span>, size = n, prob = p) - <span class="text-blue-400">pbinom</span>(<span class="text-orange-300">4</span>, size = n, prob = p)
-                
-                
-                <span class="text-gray-400"># --- 2. DISTRIBUCIÓN NORMAL (mu = 0, sigma = 1) ---</span>
-                  mu <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">0</span>; sigma <span class="text-purple-400">&lt;-</span> <span class="text-orange-300">1</span>
-                  
-                  <span class="text-gray-400"># Cola Izquierda P(X <= 1.96)</span>
-                  <span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma)
-                
-                <span class="text-gray-400"># Cola Derecha P(X >= 1.96)</span>
-                  <span class="text-orange-300">1</span> - <span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma)
-                <span class="text-gray-400"># Alternativa elegante en R:</span>
-                  <span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1.96</span>, mean = mu, sd = sigma, lower.tail = <span class="text-purple-400">FALSE</span>)
-                
-                <span class="text-gray-400"># Intervalo P(-1 <= X <= 1) => P(X <= 1) - P(X <= -1)</span>
-                  <span class="text-blue-400">pnorm</span>(<span class="text-orange-300">1</span>, mean = mu, sd = sigma) - <span class="text-blue-400">pnorm</span>(-<span class="text-orange-300">1</span>, mean = mu, sd = sigma)
-                </code></pre>
-                  </div>
-                  </section>
-                  </main>
-                  </div>
-                  
-                  <script>
-                  // ==========================================
-                  // ESTADO Y REFERENCIAS UI
-                // ==========================================
-                  let currentDist = 'binomial';
-                
-                // Botones Tabs
-                const btnB = document.getElementById('btn-binomial');
-                const btnP = document.getElementById('btn-poisson');
-                const btnN = document.getElementById('btn-normal');
-                
-                // Paneles de Controles
-                const ctrlB = document.getElementById('controls-binomial');
-                const ctrlP = document.getElementById('controls-poisson');
-                const ctrlN = document.getElementById('controls-normal');
-                const approxContainer = document.getElementById('approx-container');
-                
-                // Sliders Parámetros
-                const sn = document.getElementById('slider-n'); const vn = document.getElementById('n-val');
-                const sp = document.getElementById('slider-p'); const vp = document.getElementById('p-val');
-                const sl = document.getElementById('slider-lambda'); const vl = document.getElementById('lambda-val');
-                const smu = document.getElementById('slider-mu'); const vmu = document.getElementById('mu-val');
-                const ssigma = document.getElementById('slider-sigma'); const vsigma = document.getElementById('sigma-val');
-                
-                // Elementos Calculadora - Tipos
-                const tBin = document.getElementById('type-bin');
-                const tPois = document.getElementById('type-pois');
-                const tNorm = document.getElementById('type-norm');
-                
-                // Elementos Calculadora - Sliders Discretos (Binomial)
-                const xBin = document.getElementById('x-bin'); const vxBin = document.getElementById('val-x-bin');
-                const x1Bin = document.getElementById('x1-bin'); const vx1Bin = document.getElementById('val-x1-bin');
-                const x2Bin = document.getElementById('x2-bin'); const vx2Bin = document.getElementById('val-x2-bin');
-                
-                // Elementos Calculadora - Sliders Discretos (Poisson)
-                const xPois = document.getElementById('x-pois'); const vxPois = document.getElementById('val-x-pois');
-                const x1Pois = document.getElementById('x1-pois'); const vx1Pois = document.getElementById('val-x1-pois');
-                const x2Pois = document.getElementById('x2-pois'); const vx2Pois = document.getElementById('val-x2-pois');
-                
-                // Elementos Calculadora - Sliders Continuos (Normal)
-                const xNorm = document.getElementById('x-norm'); const vxNorm = document.getElementById('val-x-norm');
-                const x1Norm = document.getElementById('x1-norm'); const vx1Norm = document.getElementById('val-x1-norm');
-                const x2Norm = document.getElementById('x2-norm'); const vx2Norm = document.getElementById('val-x2-norm');
-                
-                // Resultados
-                const resBin = document.getElementById('res-bin');
-                const resPois = document.getElementById('res-pois');
-                const resNorm = document.getElementById('res-norm');
-                
-                // Approx
-                const chkApprox = document.getElementById('check-approx');
-                const approxStats = document.getElementById('approx-stats');
-                const calcMu = document.getElementById('calc-mu');
-                const calcSigma = document.getElementById('calc-sigma');
-                
-                // Canvas & Leyendas
-                const canvas = document.getElementById('distCanvas');
-                const ctx = canvas.getContext('2d');
-                const legDBase = document.getElementById('leg-discrete-base');
-                const legDCalc = document.getElementById('leg-discrete-calc');
-                const legCont = document.getElementById('leg-continuous');
-                const legArea = document.getElementById('leg-area');
-                
-                // ==========================================
-                  // FUNCIONES MATEMÁTICAS ESTADÍSTICAS
-                // ==========================================
-                  
-                  function dbinom(k, n, p) {
-                    if (k < 0 || k > n) return 0;
-                    if (p === 0) return k === 0 ? 1 : 0;
-                    if (p === 1) return k === n ? 1 : 0;
-                    let c = 1;
-                    for (let i = 1; i <= Math.min(k, n - k); i++) c = c * (n - i + 1) / i;
-                    return c * Math.pow(p, k) * Math.pow(1 - p, n - k);
-                  }
-                
-                function pbinom(k, n, p) {
-                  if (k < 0) return 0;
-                  let sum = 0;
-                  for(let i=0; i<=k; i++) sum += dbinom(i, n, p);
-                  return sum;
-                }
-                
-                function dpois(k, lambda) {
-                  if (k < 0) return 0;
-                  let prob = Math.exp(-lambda);
-                  for(let i=1; i<=k; i++) prob *= (lambda / i);
-                  return prob;
-                }
-                
-                function ppois(k, lambda) {
-                  if (k < 0) return 0;
-                  let sum = 0;
-                  for(let i=0; i<=k; i++) sum += dpois(i, lambda);
-                  return sum;
-                }
-                
-                function dnorm(x, mu, sigma) {
-                  return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
-                }
-                
-                // Función de Error (Aproximación de Abramowitz and Stegun) para CDF Normal
-                function erf(x) {
-                  let sign = (x >= 0) ? 1 : -1;
-                  x = Math.abs(x);
-                  let a1 =  0.254829592, a2 = -0.284496736, a3 =  1.421413741, a4 = -1.453152027, a5 =  1.061405429;
-                  let p  =  0.3275911;
-                  let t = 1.0 / (1.0 + p * x);
-                  let y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-                  return sign * y;
-                }
-                
-                function pnorm(x, mu, sigma) {
-                  return 0.5 * (1 + erf((x - mu) / (Math.sqrt(2) * sigma)));
-                }
-                
-                // ==========================================
-                  // LÓGICA DE INTERFAZ Y ACTUALIZACIÓN
-                // ==========================================
-                  
-                  function setDist(dist) {
-                    currentDist = dist;
-                    
-                    // Reset de visibilidad principal
-                    [btnB, btnP, btnN].forEach(b => b.classList.remove('active'));
-                    [ctrlB, ctrlP, ctrlN].forEach(c => c.classList.add('hidden'));
-                    
-                    if(dist === 'binomial') {
-                      btnB.classList.add('active'); ctrlB.classList.remove('hidden');
-                      approxContainer.classList.remove('hidden');
-                      legDBase.classList.remove('hidden'); legDCalc.classList.remove('hidden');
-                      legCont.classList.add('hidden'); legArea.classList.add('hidden');
-                    } else if(dist === 'poisson') {
-                      btnP.classList.add('active'); ctrlP.classList.remove('hidden');
-                      approxContainer.classList.remove('hidden');
-                      legDBase.classList.remove('hidden'); legDCalc.classList.remove('hidden');
-                      legCont.classList.add('hidden'); legArea.classList.add('hidden');
-                    } else {
-                      btnN.classList.add('active'); ctrlN.classList.remove('hidden');
-                      approxContainer.classList.add('hidden');
-                      chkApprox.checked = false;
-                      legDBase.classList.add('hidden'); legDCalc.classList.add('hidden');
-                      legCont.classList.remove('hidden'); legArea.classList.remove('hidden');
-                    }
-                    updateInputVisibility();
-                    updateCalculatorBounds();
-                    drawDistribution();
-                  }
-                
-                // Alternar entre control Único (x) y Rango (x1, x2) según la selección
-                function updateInputVisibility() {
-                  ['bin', 'pois', 'norm'].forEach(dist => {
-                    const typeEl = document.getElementById(`type-${dist}`);
-                    const wrapSingle = document.getElementById(`wrap-single-${dist}`);
-                    const wrapRange = document.getElementById(`wrap-range-${dist}`);
-                    
-                    if (typeEl && wrapSingle && wrapRange) {
-                      if (typeEl.value === 'range') {
+                if (typeEl && wrapSingle && wrapRange) {
+                    if (typeEl.value === 'range') {
                         wrapSingle.classList.add('hidden');
                         wrapRange.classList.remove('hidden');
-                      } else {
+                    } else {
                         wrapSingle.classList.remove('hidden');
                         wrapRange.classList.add('hidden');
-                      }
                     }
-                  });
+                }
+            });
+        }
+
+        function drawDistribution() {
+            // -- 1. RECOGER PARÁMETROS BÁSICOS --
+            const n = parseInt(inN.value) || 0;
+            const p = parseFloat(inP.value) || 0;
+            const lambda = parseFloat(inLambda.value) || 0;
+            const muN = parseFloat(inMu.value) || 0;
+            const sigmaN = parseFloat(inSigma.value) || 0.0001; // Evitar divisiones por cero
+
+            const showApprox = chkApprox.checked;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let dataDiscrete = [];
+            let curveParams = null; 
+            
+            let minX = 0, maxX = 10;
+            let maxY = 0.1; 
+            
+            // Variables para iluminar el gráfico según cálculo
+            let calcType = '';
+            let val1 = 0, val2 = 0; 
+            
+            // -- 2. CÁLCULOS ESPECÍFICOS Y RESULTADOS CALCULADORA --
+            if (currentDist === 'binomial') {
+                calcType = tBin.value;
+                val1 = parseInt(xBin.value) || 0;
+                let raw1 = parseInt(x1Bin.value) || 0;
+                let raw2 = parseInt(x2Bin.value) || 0;
+                let v1Range = Math.min(raw1, raw2); // Ordenar inteligentemente
+                let v2Range = Math.max(raw1, raw2);
+
+                for(let i=0; i<=n; i++) {
+                    let prob = dbinom(i, n, p);
+                    if(prob > maxY) maxY = prob;
+                    dataDiscrete.push({x: i, y: prob});
                 }
                 
-                // Actualizar límites de los sliders de la calculadora cuando cambian los parámetros
-                function updateCalculatorBounds() {
-                  if (currentDist === 'binomial') {
-                    const n = parseInt(sn.value);
-                    xBin.max = n; x1Bin.max = n; x2Bin.max = n;
-                    if (parseInt(xBin.value) > n) xBin.value = n;
-                    if (parseInt(x1Bin.value) > n) x1Bin.value = n;
-                    if (parseInt(x2Bin.value) > n) x2Bin.value = n;
-                  } else if (currentDist === 'poisson') {
-                    const lambda = parseInt(sl.value);
-                    let maxK = Math.ceil(lambda + 4 * Math.sqrt(lambda));
-                    xPois.max = maxK; x1Pois.max = maxK; x2Pois.max = maxK;
-                    if (parseInt(xPois.value) > maxK) xPois.value = maxK;
-                    if (parseInt(x1Pois.value) > maxK) x1Pois.value = maxK;
-                    if (parseInt(x2Pois.value) > maxK) x2Pois.value = maxK;
-                  } else if (currentDist === 'normal') {
-                    const mu = parseFloat(smu.value);
-                    const sigma = parseFloat(ssigma.value);
-                    const minN = (mu - 4*sigma).toFixed(1);
-                    const maxN = (mu + 4*sigma).toFixed(1);
-                    
-                    xNorm.min = minN; xNorm.max = maxN;
-                    x1Norm.min = minN; x1Norm.max = maxN;
-                    x2Norm.min = minN; x2Norm.max = maxN;
-                    
-                    if (parseFloat(xNorm.value) < mu - 4*sigma || parseFloat(xNorm.value) > mu + 4*sigma) xNorm.value = mu;
-                    if (parseFloat(x1Norm.value) < mu - 4*sigma || parseFloat(x1Norm.value) > mu + 4*sigma) x1Norm.value = mu - sigma;
-                    if (parseFloat(x2Norm.value) < mu - 4*sigma || parseFloat(x2Norm.value) > mu + 4*sigma) x2Norm.value = mu + sigma;
-                  }
-                }
+                let mu = n * p; let sig = Math.sqrt(n * p * (1-p));
+                minX = Math.max(0, Math.floor(mu - 4*sig));
+                maxX = Math.min(n, Math.ceil(mu + 4*sig));
                 
-                function drawDistribution() {
-                  // -- 1. RECOGER PARÁMETROS BÁSICOS --
-                    const n = parseInt(sn.value); vn.innerText = n;
-                    const p = parseFloat(sp.value); vp.innerText = p.toFixed(2);
-                    
-                    const lambda = parseInt(sl.value); vl.innerText = lambda;
-                    
-                    const muN = parseFloat(smu.value); vmu.innerText = muN;
-                    const sigmaN = parseFloat(ssigma.value); vsigma.innerText = sigmaN.toFixed(1);
-                    
-                    const showApprox = chkApprox.checked;
-                    
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    let dataDiscrete = [];
-                    let curveParams = null; 
-                    
-                    let minX = 0, maxX = 10;
-                    let maxY = 0.1; 
-                    
-                    // Variables para iluminar el gráfico según cálculo
-                    let calcType = '';
-                    let val1 = 0, val2 = 0; 
-                    
-                    // -- 2. CÁLCULOS ESPECÍFICOS Y RESULTADOS CALCULADORA --
-                      if (currentDist === 'binomial') {
-                        calcType = tBin.value;
-                        val1 = parseInt(xBin.value); vxBin.innerText = val1;
-                        let v1Range = parseInt(x1Bin.value); vx1Bin.innerText = v1Range;
-                        let v2Range = parseInt(x2Bin.value); vx2Bin.innerText = v2Range;
+                let res = 0;
+                if (calcType === 'eq') res = dbinom(val1, n, p);
+                else if (calcType === 'le') res = pbinom(val1, n, p);
+                else if (calcType === 'ge') res = 1 - pbinom(val1 - 1, n, p);
+                else { res = pbinom(v2Range, n, p) - pbinom(v1Range - 1, n, p); val1 = v1Range; val2 = v2Range; }
+                
+                resBin.innerText = res.toFixed(4);
+
+                if (showApprox) {
+                    curveParams = { mu: mu, sigma: sig };
+                    approxStats.classList.remove('hidden');
+                    calcMu.innerText = mu.toFixed(2); calcSigma.innerText = sig.toFixed(2);
+                    legCont.classList.remove('hidden');
+                } else {
+                    approxStats.classList.add('hidden');
+                    legCont.classList.add('hidden');
+                }
+            } 
+            else if (currentDist === 'poisson') {
+                calcType = tPois.value;
+                val1 = parseInt(xPois.value) || 0;
+                let raw1 = parseInt(x1Pois.value) || 0;
+                let raw2 = parseInt(x2Pois.value) || 0;
+                let v1Range = Math.min(raw1, raw2);
+                let v2Range = Math.max(raw1, raw2);
+
+                let searchMax = Math.ceil(lambda + 5*Math.sqrt(lambda)) + 5;
+                for(let i=0; i<=searchMax; i++) {
+                    let prob = dpois(i, lambda);
+                    if(prob > maxY) maxY = prob;
+                    dataDiscrete.push({x: i, y: prob});
+                }
+                minX = Math.max(0, Math.floor(lambda - 4*Math.sqrt(lambda)));
+                maxX = Math.ceil(lambda + 4*Math.sqrt(lambda));
+
+                let res = 0;
+                if (calcType === 'eq') res = dpois(val1, lambda);
+                else if (calcType === 'le') res = ppois(val1, lambda);
+                else if (calcType === 'ge') res = 1 - ppois(val1 - 1, lambda);
+                else { res = ppois(v2Range, lambda) - ppois(v1Range - 1, lambda); val1 = v1Range; val2 = v2Range; }
+
+                resPois.innerText = res.toFixed(4);
+
+                if (showApprox) {
+                    curveParams = { mu: lambda, sigma: Math.sqrt(lambda) };
+                    approxStats.classList.remove('hidden');
+                    calcMu.innerText = curveParams.mu.toFixed(2); calcSigma.innerText = curveParams.sigma.toFixed(2);
+                    legCont.classList.remove('hidden');
+                } else {
+                    approxStats.classList.add('hidden');
+                    legCont.classList.add('hidden');
+                }
+            }
+            else if (currentDist === 'normal') {
+                calcType = tNorm.value;
+                val1 = parseFloat(xNorm.value) || 0;
+                let raw1 = parseFloat(x1Norm.value) || 0;
+                let raw2 = parseFloat(x2Norm.value) || 0;
+                let v1Range = Math.min(raw1, raw2);
+                let v2Range = Math.max(raw1, raw2);
+
+                minX = muN - 4*sigmaN;
+                maxX = muN + 4*sigmaN;
+                maxY = dnorm(muN, muN, sigmaN); 
+                curveParams = { mu: muN, sigma: sigmaN };
+
+                let res = 0;
+                if (calcType === 'le') res = pnorm(val1, muN, sigmaN);
+                else if (calcType === 'ge') res = 1 - pnorm(val1, muN, sigmaN);
+                else { res = pnorm(v2Range, muN, sigmaN) - pnorm(v1Range, muN, sigmaN); val1 = v1Range; val2 = v2Range; }
+
+                resNorm.innerText = res.toFixed(4);
+            }
+
+            maxY = maxY * 1.1; // Padding superior
+
+            // Funciones Mapeo Canvas
+            const pX = (x) => 40 + ((x - minX) / (maxX - minX)) * (canvas.width - 80);
+            const pY = (y) => canvas.height - 30 - (y / maxY) * (canvas.height - 60);
+
+            // -- 3. DIBUJAR EJES --
+            ctx.beginPath();
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5;
+            ctx.moveTo(40, pY(0)); ctx.lineTo(canvas.width - 40, pY(0)); // Eje X
+            ctx.stroke();
+
+            ctx.fillStyle = '#64748b'; ctx.font = '12px Inter'; ctx.textAlign = 'center';
+            let stepX = Math.ceil((maxX - minX) / 10);
+            if (stepX === 0) stepX = 1;
+            for(let x=Math.floor(minX); x<=Math.ceil(maxX); x+=stepX) {
+                if(x < minX || x > maxX) continue;
+                ctx.fillText(x, pX(x), pY(0) + 15);
+                ctx.beginPath(); ctx.moveTo(pX(x), pY(0)); ctx.lineTo(pX(x), pY(0)-5); ctx.stroke();
+            }
+
+            // -- 4. DIBUJAR BARRAS (Binomial / Poisson) --
+            if (currentDist === 'binomial' || currentDist === 'poisson') {
+                dataDiscrete.forEach(d => {
+                    if (d.x >= minX && d.x <= maxX) {
+                        const cx = pX(d.x);
+                        const cy = pY(d.y);
+                        const c0 = pY(0);
                         
-                        for(let i=0; i<=n; i++) {
-                          let prob = dbinom(i, n, p);
-                          if(prob > maxY) maxY = prob;
-                          dataDiscrete.push({x: i, y: prob});
-                        }
-                        let mu = n * p; let sig = Math.sqrt(n * p * (1-p));
-                        minX = Math.max(0, Math.floor(mu - 4*sig));
-                        maxX = Math.min(n, Math.ceil(mu + 4*sig));
-                        
-                        let res = 0;
-                        if (calcType === 'eq') res = dbinom(val1, n, p);
-                        else if (calcType === 'le') res = pbinom(val1, n, p);
-                        else if (calcType === 'ge') res = 1 - pbinom(val1 - 1, n, p);
-                        else { res = pbinom(v2Range, n, p) - pbinom(v1Range - 1, n, p); val1 = v1Range; val2 = v2Range; }
-                        
-                        resBin.innerText = res.toFixed(4);
-                        
-                        if (showApprox) {
-                          curveParams = { mu: mu, sigma: sig };
-                          approxStats.classList.remove('hidden');
-                          calcMu.innerText = mu.toFixed(2); calcSigma.innerText = sig.toFixed(2);
-                          legCont.classList.remove('hidden');
-                        } else {
-                          approxStats.classList.add('hidden');
-                          legCont.classList.add('hidden');
-                        }
-                      } 
-                    else if (currentDist === 'poisson') {
-                      calcType = tPois.value;
-                      val1 = parseInt(xPois.value); vxPois.innerText = val1;
-                      let v1Range = parseInt(x1Pois.value); vx1Pois.innerText = v1Range;
-                      let v2Range = parseInt(x2Pois.value); vx2Pois.innerText = v2Range;
-                      
-                      let searchMax = Math.ceil(lambda + 5*Math.sqrt(lambda)) + 5;
-                      for(let i=0; i<=searchMax; i++) {
-                        let prob = dpois(i, lambda);
-                        if(prob > maxY) maxY = prob;
-                        dataDiscrete.push({x: i, y: prob});
-                      }
-                      minX = Math.max(0, Math.floor(lambda - 4*Math.sqrt(lambda)));
-                      maxX = Math.ceil(lambda + 4*Math.sqrt(lambda));
-                      
-                      let res = 0;
-                      if (calcType === 'eq') res = dpois(val1, lambda);
-                      else if (calcType === 'le') res = ppois(val1, lambda);
-                      else if (calcType === 'ge') res = 1 - ppois(val1 - 1, lambda);
-                      else { res = ppois(v2Range, lambda) - ppois(v1Range - 1, lambda); val1 = v1Range; val2 = v2Range; }
-                      
-                      resPois.innerText = res.toFixed(4);
-                      
-                      if (showApprox) {
-                        curveParams = { mu: lambda, sigma: Math.sqrt(lambda) };
-                        approxStats.classList.remove('hidden');
-                        calcMu.innerText = curveParams.mu.toFixed(2); calcSigma.innerText = curveParams.sigma.toFixed(2);
-                        legCont.classList.remove('hidden');
-                      } else {
-                        approxStats.classList.add('hidden');
-                        legCont.classList.add('hidden');
-                      }
-                    }
-                    else if (currentDist === 'normal') {
-                      calcType = tNorm.value;
-                      val1 = parseFloat(xNorm.value); vxNorm.innerText = val1.toFixed(1);
-                      let v1Range = parseFloat(x1Norm.value); vx1Norm.innerText = v1Range.toFixed(1);
-                      let v2Range = parseFloat(x2Norm.value); vx2Norm.innerText = v2Range.toFixed(1);
-                      
-                      minX = muN - 4*sigmaN;
-                      maxX = muN + 4*sigmaN;
-                      maxY = dnorm(muN, muN, sigmaN); 
-                      curveParams = { mu: muN, sigma: sigmaN };
-                      
-                      let res = 0;
-                      if (calcType === 'le') res = pnorm(val1, muN, sigmaN);
-                      else if (calcType === 'ge') res = 1 - pnorm(val1, muN, sigmaN);
-                      else { res = pnorm(v2Range, muN, sigmaN) - pnorm(v1Range, muN, sigmaN); val1 = v1Range; val2 = v2Range; }
-                      
-                      resNorm.innerText = res.toFixed(4);
-                    }
-                    
-                    maxY = maxY * 1.1; // Padding superior
-                    
-                    // Funciones Mapeo Canvas
-                    const pX = (x) => 40 + ((x - minX) / (maxX - minX)) * (canvas.width - 80);
-                    const pY = (y) => canvas.height - 30 - (y / maxY) * (canvas.height - 60);
-                    
-                    // -- 3. DIBUJAR EJES --
-                      ctx.beginPath();
-                    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5;
-                    ctx.moveTo(40, pY(0)); ctx.lineTo(canvas.width - 40, pY(0)); // Eje X
-                    ctx.stroke();
-                    
-                    ctx.fillStyle = '#64748b'; ctx.font = '12px Inter'; ctx.textAlign = 'center';
-                    let stepX = Math.ceil((maxX - minX) / 10);
-                    if (stepX === 0) stepX = 1;
-                    for(let x=Math.floor(minX); x<=Math.ceil(maxX); x+=stepX) {
-                      if(x < minX || x > maxX) continue;
-                      ctx.fillText(x, pX(x), pY(0) + 15);
-                      ctx.beginPath(); ctx.moveTo(pX(x), pY(0)); ctx.lineTo(pX(x), pY(0)-5); ctx.stroke();
-                    }
-                    
-                    // -- 4. DIBUJAR BARRAS (Binomial / Poisson) --
-                      if (currentDist === 'binomial' || currentDist === 'poisson') {
-                        dataDiscrete.forEach(d => {
-                          if (d.x >= minX && d.x <= maxX) {
-                            const cx = pX(d.x);
-                            const cy = pY(d.y);
-                            const c0 = pY(0);
-                            
-                            // Evaluar si este bastón pertenece a la región calculada
-                            let highlight = false;
-                            if (calcType === 'eq') highlight = (d.x === val1);
-                            else if (calcType === 'le') highlight = (d.x <= val1);
-                            else if (calcType === 'ge') highlight = (d.x >= val1);
-                            else if (calcType === 'range') highlight = (d.x >= val1 && d.x <= val2);
-                            
-                            ctx.strokeStyle = highlight ? '#e11d48' : '#cbd5e1'; // rose-600 / slate-300
-                            ctx.fillStyle = highlight ? '#e11d48' : '#cbd5e1';
-                            
-                            // Tallo
-                            ctx.beginPath();
-                            ctx.lineWidth = highlight ? 6 : 4;
-                            ctx.moveTo(cx, c0);
-                            ctx.lineTo(cx, cy);
-                            ctx.stroke();
-                            
-                            // Punto (Círculo arriba)
-                            ctx.beginPath();
-                            ctx.arc(cx, cy, highlight ? 5 : 4, 0, Math.PI*2);
-                            ctx.fill();
-                          }
-                        });
-                      }
-                    
-                    // -- 5. DIBUJAR CURVA NORMAL --
-                      if (curveParams) {
-                        const steps = 200;
-                        const dx = (maxX - minX) / steps;
-                        
-                        // Sombrear el área calculada en Normal (Nativa)
-                        if (currentDist === 'normal') {
-                          legArea.classList.remove('hidden');
-                          
-                          let startX = minX; let endX = maxX;
-                          if (calcType === 'le') { endX = Math.min(maxX, val1); }
-                          else if (calcType === 'ge') { startX = Math.max(minX, val1); }
-                          else if (calcType === 'range') { startX = Math.max(minX, val1); endX = Math.min(maxX, val2); }
-                          
-                          if (startX < endX) {
-                            ctx.beginPath();
-                            ctx.moveTo(pX(startX), pY(0));
-                            let shadeSteps = 100;
-                            let sDx = (endX - startX) / shadeSteps;
-                            for(let i=0; i<=shadeSteps; i++) {
-                              let currX = startX + i*sDx;
-                              ctx.lineTo(pX(currX), pY(dnorm(currX, curveParams.mu, curveParams.sigma)));
-                            }
-                            ctx.lineTo(pX(endX), pY(0));
-                            ctx.fillStyle = 'rgba(225, 29, 72, 0.3)'; // Sombreado rosa
-                            ctx.fill();
-                          }
-                        } else {
-                          legArea.classList.add('hidden');
-                        }
-                        
-                        // Dibujar línea de la campana
+                        // Evaluar si este bastón pertenece a la región calculada
+                        let highlight = false;
+                        if (calcType === 'eq') highlight = (d.x === val1);
+                        else if (calcType === 'le') highlight = (d.x <= val1);
+                        else if (calcType === 'ge') highlight = (d.x >= val1);
+                        else if (calcType === 'range') highlight = (d.x >= val1 && d.x <= val2);
+
+                        ctx.strokeStyle = highlight ? '#e11d48' : '#cbd5e1'; // rose-600 / slate-300
+                        ctx.fillStyle = highlight ? '#e11d48' : '#cbd5e1';
+
+                        // Tallo
                         ctx.beginPath();
-                        ctx.strokeStyle = currentDist === 'normal' ? '#e11d48' : 'rgba(15, 23, 42, 0.4)'; // Rosa si es nativa, gris si es aprox
-                        ctx.lineWidth = 3;
-                        
-                        let first = true;
-                        for(let i=0; i<=steps; i++) {
-                          let x = minX + i*dx;
-                          let y = dnorm(x, curveParams.mu, curveParams.sigma);
-                          if(first) { ctx.moveTo(pX(x), pY(y)); first = false; }
-                          else { ctx.lineTo(pX(x), pY(y)); }
-                        }
+                        ctx.lineWidth = highlight ? 6 : 4;
+                        ctx.moveTo(cx, c0);
+                        ctx.lineTo(cx, cy);
                         ctx.stroke();
-                      }
+
+                        // Punto (Círculo arriba)
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, highlight ? 5 : 4, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                });
+            }
+
+            // -- 5. DIBUJAR CURVA NORMAL --
+            if (curveParams) {
+                const steps = 200;
+                const dx = (maxX - minX) / steps;
+
+                // Sombrear el área calculada en Normal (Nativa)
+                if (currentDist === 'normal') {
+                    legArea.classList.remove('hidden');
+                    
+                    let startX = minX; let endX = maxX;
+                    if (calcType === 'le') { endX = Math.min(maxX, val1); }
+                    else if (calcType === 'ge') { startX = Math.max(minX, val1); }
+                    else if (calcType === 'range') { startX = Math.max(minX, val1); endX = Math.min(maxX, val2); }
+
+                    if (startX < endX) {
+                        ctx.beginPath();
+                        ctx.moveTo(pX(startX), pY(0));
+                        let shadeSteps = 100;
+                        let sDx = (endX - startX) / shadeSteps;
+                        for(let i=0; i<=shadeSteps; i++) {
+                            let currX = startX + i*sDx;
+                            ctx.lineTo(pX(currX), pY(dnorm(currX, curveParams.mu, curveParams.sigma)));
+                        }
+                        ctx.lineTo(pX(endX), pY(0));
+                        ctx.fillStyle = 'rgba(225, 29, 72, 0.3)'; // Sombreado rosa
+                        ctx.fill();
+                    }
+                } else {
+                    legArea.classList.add('hidden');
                 }
+
+                // Dibujar línea de la campana
+                ctx.beginPath();
+                ctx.strokeStyle = currentDist === 'normal' ? '#e11d48' : 'rgba(15, 23, 42, 0.4)'; // Rosa si es nativa, gris si es aprox
+                ctx.lineWidth = 3;
                 
-                // ==========================================
-                  // LISTENERS
-                // ==========================================
-                  
-                  // Controladores para que x1 no cruce a x2 y viceversa
-                function enforceRangeSliders(s1, s2) {
-                  s1.addEventListener('input', () => { if (parseFloat(s1.value) > parseFloat(s2.value)) s2.value = s1.value; drawDistribution(); });
-                  s2.addEventListener('input', () => { if (parseFloat(s2.value) < parseFloat(s1.value)) s1.value = s2.value; drawDistribution(); });
+                let first = true;
+                for(let i=0; i<=steps; i++) {
+                    let x = minX + i*dx;
+                    let y = dnorm(x, curveParams.mu, curveParams.sigma);
+                    if(first) { ctx.moveTo(pX(x), pY(y)); first = false; }
+                    else { ctx.lineTo(pX(x), pY(y)); }
                 }
-                enforceRangeSliders(x1Bin, x2Bin);
-                enforceRangeSliders(x1Pois, x2Pois);
-                enforceRangeSliders(x1Norm, x2Norm);
-                
-                // Actualizar visualización de inputs al cambiar dropdown
-                [tBin, tPois, tNorm].forEach(sel => sel.addEventListener('change', () => {
-                  updateInputVisibility(); drawDistribution();
-                }));
-                
-                // Cuando cambian los parámetros principales -> actualizar límites y dibujar
-                [sn, sp, sl, smu, ssigma].forEach(input => input.addEventListener('input', () => {
-                  updateCalculatorBounds(); drawDistribution();
-                }));
-                
-                // Cuando cambian los calculadores (sliders individuales) o el checkbox
-                [xBin, xPois, xNorm, chkApprox].forEach(input => input.addEventListener('input', drawDistribution));
-                
-                function copyCode() {
-                  const code = document.getElementById('r-code').innerText;
-                  navigator.clipboard.writeText(code).then(() => {
-                    alert("Código en R copiado al portapapeles.");
-                  });
-                }
-                
-                // Inicio
-                setDist('binomial');
-                
-                </script>
-                  </body>
-                  </html>
+                ctx.stroke();
+            }
+        }
+
+        // ==========================================
+        // LISTENERS
+        // ==========================================
+
+        // Actualizar visualización de inputs al cambiar dropdown
+        [tBin, tPois, tNorm].forEach(sel => sel.addEventListener('change', () => {
+            updateInputVisibility(); drawDistribution();
+        }));
+
+        // Cuando cambian los parámetros principales o calculadores -> dibujar
+        [inN, inP, inLambda, inMu, inSigma, xBin, x1Bin, x2Bin, xPois, x1Pois, x2Pois, xNorm, x1Norm, x2Norm, chkApprox]
+            .forEach(input => input.addEventListener('input', drawDistribution));
+
+        function copyCode() {
+            const code = document.getElementById('r-code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Código en R copiado al portapapeles.");
+            });
+        }
+
+        // Inicio
+        setDist('binomial');
+
+    </script>
+</body>
+</html>
