@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica: Funciones de Distribución</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Integración de KaTeX para tipografía matemática -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fff1f2; color: #0f172a; }
+        code { font-family: 'JetBrains Mono', monospace; background-color: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.875em;}
+        
+        .option-btn { transition: all 0.2s ease-in-out; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2); border-color: #f43f5e; }
+        .option-selected { background-color: #ffe4e6; border-color: #e11d48; }
+        .option-correct { background-color: #dcfce7; border-color: #22c55e; color: #166534; }
+        .option-incorrect { background-color: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4 sm:px-8">
+
+    <div class="max-w-4xl w-full bg-white shadow-xl rounded-2xl overflow-hidden border border-rose-100">
+        
+        <!-- Header -->
+        <header class="bg-rose-900 text-white p-8 relative overflow-hidden">
+            <div class="relative z-10 text-center">
+                <h1 class="text-3xl font-bold mb-2">Cuadernillo de Prácticas</h1>
+                <h2 class="text-xl text-rose-200">Funciones de Distribución y Aproximación Normal</h2>
+                <p class="mt-4 text-sm text-rose-300 font-medium">Programa Analítico IC - UAZ | Probabilidad y Estadística</p>
+            </div>
+        </header>
+
+        <!-- Contenedor del Quiz -->
+        <main class="p-8" id="quiz-container">
+            <!-- Las preguntas se inyectan aquí mediante JS -->
+        </main>
+
+        <!-- Resultados -->
+        <div id="results-container" class="hidden p-8 bg-rose-50 border-t border-rose-100 text-center">
+            <h3 class="text-2xl font-bold text-rose-900 mb-2">¡Práctica Completada!</h3>
+            <p class="text-lg text-gray-700 mb-4">Tu puntuación es:</p>
+            <div class="text-5xl font-black text-rose-600 mb-6" id="score-display">0 / 0</div>
+            <button onclick="location.reload()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-md">
+                Reintentar Cuadernillo
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "En una red de computadoras, la probabilidad de que un paquete de datos se pierda durante la transmisión es del 0.02. Si se envían 50 paquetes independientes, ¿qué distribución es la más apropiada para modelar el número exacto de paquetes perdidos?",
+                hint: "Considera que hay un número finito de ensayos independientes y una probabilidad constante de 'éxito' (que el paquete se pierda).",
+                options: [
+                    { text: "Distribución Poisson", rationale: "Poisson se usa típicamente para eventos en un intervalo continuo (como tiempo o área), no para un número fijo de ensayos discretos.", isCorrect: false },
+                    { text: "Distribución Binomial", rationale: "Es correcta porque cumple las condiciones: un número fijo de ensayos (\\(n=50\\)), probabilidad constante (\\(p=0.02\\)) y eventos independientes.", isCorrect: true },
+                    { text: "Distribución Normal", rationale: "La Normal modela variables continuas. Aquí estamos contando el número entero de paquetes perdidos.", isCorrect: false },
+                    { text: "Distribución Hipergeométrica", rationale: "Esta se usaría si el muestreo fuera sin reemplazo de una población pequeña, pero los envíos de paquetes se asumen independientes.", isCorrect: false }
+                ]
+            },
+            {
+                question: "Un centro de soporte técnico recibe en promedio 3.5 llamadas de emergencia por hora. ¿Cuál es el modelo estadístico correcto para encontrar la probabilidad de que reciban exactamente 5 llamadas en la próxima hora?",
+                hint: "Se busca modelar el conteo discreto de eventos independientes que ocurren en un intervalo de tiempo continuo, dada una tasa promedio.",
+                options: [
+                    { text: "Distribución Binomial", rationale: "No hay un número máximo fijo de ensayos (no hay un límite absoluto de llamadas posibles), por lo que la Binomial no aplica.", isCorrect: false },
+                    { text: "Distribución Normal", rationale: "El número de llamadas es un valor discreto (entero), mientras que la Normal asume valores continuos.", isCorrect: false },
+                    { text: "Distribución Exponencial", rationale: "La Exponencial modelaría el tiempo que transcurre *entre* una llamada y la siguiente, no la cantidad de llamadas en una hora.", isCorrect: false },
+                    { text: "Distribución de Poisson", rationale: "Es el modelo ideal para contar el número de ocurrencias de un evento en un intervalo de tiempo determinado, usando el parámetro \\(\\lambda = 3.5\\).", isCorrect: true }
+                ]
+            },
+            {
+                question: "Si una variable aleatoria \\(X\\) se distribuye normalmente con media \\(\\mu = 100\\) y desviación estándar \\(\\sigma = 15\\), ¿cómo se estandariza el valor \\(X = 130\\) para encontrar su valor \\(Z\\) en la distribución Normal Estándar?",
+                hint: "Recuerda la fórmula de estandarización: \\(Z = \\frac{X - \\mu}{\\sigma}\\).",
+                options: [
+                    { text: "\\(Z = \\frac{130 - 15}{100} = 1.15\\)", rationale: "Los valores de la fórmula están colocados incorrectamente en esta opción.", isCorrect: false },
+                    { text: "\\(Z = \\frac{100 - 130}{15} = -2.0\\)", rationale: "Esta fórmula resta el valor X a la media, lo cual invierte el signo. El valor está 2 desviaciones *por encima* de la media, no por debajo.", isCorrect: false },
+                    { text: "\\(Z = \\frac{130 - 100}{15} = 2.0\\)", rationale: "Correcto. Aplicando la fórmula de tipificación: \\(Z = \\frac{130 - 100}{15} = \\frac{30}{15} = 2.0\\).", isCorrect: true },
+                    { text: "\\(Z = \\frac{130 - 100}{15^2} = 0.133\\)", rationale: "La estandarización se divide entre la desviación estándar (\\(\\sigma\\)), no entre la varianza (\\(\\sigma^2\\)).", isCorrect: false }
+                ]
+            },
+            {
+                question: "Se sabe que el 20% de los chips fabricados por una máquina son defectuosos (\\(p=0.2\\)). Si se revisa un lote de \\(n = 400\\) chips, ¿cuál es la media (\\(\\mu\\)) y la desviación estándar (\\(\\sigma\\)) esperadas para aproximar esta distribución a la Normal?",
+                hint: "Para una distribución binomial, la media es \\(np\\) y la desviación estándar es \\(\\sqrt{np(1-p)}\\).",
+                options: [
+                    { text: "\\(\\mu = 80\\), \\(\\sigma = 80\\)", rationale: "El cálculo de la desviación estándar es incorrecto. Has calculado la varianza o cometido un error matemático.", isCorrect: false },
+                    { text: "\\(\\mu = 80\\), \\(\\sigma = 8\\)", rationale: "Correcto. La media es \\(\\mu = np = 400(0.2) = 80\\). La desviación estándar es \\(\\sigma = \\sqrt{np(1-p)} = \\sqrt{400(0.2)(0.8)} = \\sqrt{64} = 8\\).", isCorrect: true },
+                    { text: "\\(\\mu = 20\\), \\(\\sigma = 8\\)", rationale: "La media está mal calculada; no es igual al porcentaje directo.", isCorrect: false },
+                    { text: "\\(\\mu = 80\\), \\(\\sigma = 64\\)", rationale: "Has calculado correctamente la varianza (\\(\\sigma^2 = 64\\)), pero se pide la desviación estándar, que es la raíz cuadrada de la varianza.", isCorrect: false }
+                ]
+            },
+            {
+                question: "En el contexto de la aproximación Normal a la distribución Binomial, si estamos calculando la probabilidad de que el número de éxitos sea *menor o igual* a 45 (\\(P(X \\le 45)\\)), ¿qué ajuste de continuidad se debe aplicar al estandarizar el valor?",
+                hint: "Recuerda que estamos pasando de barras discretas a una curva continua. Para incluir la totalidad de la 'barra' del 45, debemos extender el límite superior media unidad.",
+                options: [
+                    { text: "Usar \\(X = 45.5\\)", rationale: "Al querer incluir el valor discreto 45 y todos los menores, ampliamos el límite superior hasta 45.5 en la escala continua.", isCorrect: true },
+                    { text: "Usar \\(X = 44.5\\)", rationale: "Si usamos 44.5, estaríamos excluyendo la mayor parte del área correspondiente a la barra del valor 45.", isCorrect: false },
+                    { text: "Usar \\(X = 45\\)", rationale: "No usar ajuste de continuidad suele introducir un error de subestimación, especialmente en muestras no tan grandes.", isCorrect: false },
+                    { text: "Restar 0.5 a la media \\(\\mu\\)", rationale: "El ajuste de continuidad se aplica a la variable de interés (\\(X\\)), no a los parámetros fijos de la distribución (\\(\\mu\\)).", isCorrect: false }
+                ]
+            },
+            {
+                question: "En R, si deseas calcular la probabilidad de que una variable aleatoria normal con media 50 y desviación estándar 10 sea *mayor* a 65 (\\(P(X > 65)\\)), ¿qué función utilizarías?",
+                hint: "Recuerda que el prefijo 'p' en R da la probabilidad acumulada (área a la izquierda). Usa la propiedad del complemento o el argumento correspondiente.",
+                options: [
+                    { text: "<code>pnorm(65, mean = 50, sd = 10)</code>", rationale: "Esto calcularía el área a la *izquierda* (menor o igual a 65), es decir, \\(P(X \\le 65)\\).", isCorrect: false },
+                    { text: "<code>1 - pnorm(65, mean = 50, sd = 10)</code>", rationale: "Correcto. Calculamos el área total (1) y le restamos el área a la izquierda, dejando el área a la derecha (mayor a 65).", isCorrect: true },
+                    { text: "<code>dnorm(65, mean = 50, sd = 10)</code>", rationale: "La función `dnorm` devuelve el valor de la función de densidad (la altura de la curva), no la probabilidad acumulada de un rango.", isCorrect: false },
+                    { text: "<code>qnorm(65, mean = 50, sd = 10)</code>", rationale: "La función `qnorm` es la inversa; dado un cuantil (porcentaje de área), devuelve el valor de \\(X\\).", isCorrect: false }
+                ]
+            },
+            {
+                question: "El peso de ciertos componentes electrónicos se distribuye normalmente con media \\(\\mu = 50\\) g y desviación estándar \\(\\sigma = 2\\) g. ¿Qué porcentaje aproximado de los componentes pesa entre 46 g y 54 g?",
+                hint: "Calcula cuántas desviaciones estándar hay desde la media hasta esos límites y recuerda la regla empírica (68-95-99.7).",
+                options: [
+                    { text: "68%", rationale: "Este porcentaje corresponde a \\(\\pm 1\\sigma\\), es decir, entre 48 g y 52 g.", isCorrect: false },
+                    { text: "95%", rationale: "Correcto. El intervalo de 46 a 54 representa \\(50 \\pm 2(2)\\). Según la regla empírica de la distribución Normal, a \\(\\pm 2\\sigma\\) de la media se encuentra el 95% del área.", isCorrect: true },
+                    { text: "99.7%", rationale: "Este porcentaje abarca \\(\\pm 3\\sigma\\), lo que sería un intervalo mucho más amplio, de 44 g a 56 g.", isCorrect: false },
+                    { text: "50%", rationale: "El 50% es simplemente una de las mitades de la campana (desde la media hacia la izquierda o hacia la derecha).", isCorrect: false }
+                ]
+            },
+            {
+                question: "Un algoritmo de compresión tiene éxito el 80% de las veces (\\(p=0.8\\)). Si se prueba en 5 archivos distintos, ¿cuál es la expresión correcta para calcular la probabilidad de que tenga éxito en exactamente 3 archivos?",
+                hint: "Usa la función de masa de probabilidad de la Binomial: \\(P(X=k) = \\binom{n}{k} p^k (1-p)^{n-k}\\).",
+                options: [
+                    { text: "\\(\\binom{5}{3} (0.8)^3 (0.2)^2\\)", rationale: "Correcto. Corresponde a las combinaciones de 5 elementos tomados de 3 en 3 (las formas en que pueden ordenarse los éxitos), multiplicado por la probabilidad de 3 éxitos y 2 fracasos.", isCorrect: true },
+                    { text: "\\(\\binom{5}{3} (0.8)^2 (0.2)^3\\)", rationale: "Incorrecto. Se han intercambiado los exponentes de la probabilidad de éxito (0.8) y de fracaso (0.2).", isCorrect: false },
+                    { text: "\\((0.8)^3 (0.2)^2\\)", rationale: "Falta el coeficiente binomial \\(\\binom{n}{k}\\), el cual es crucial porque contabiliza las diferentes combinaciones o secuencias en las que pueden ocurrir los 3 éxitos.", isCorrect: false },
+                    { text: "\\(\\frac{e^{-5} 5^3}{3!}\\)", rationale: "Esta expresión pertenece a la distribución de Poisson, no a la Binomial.", isCorrect: false }
+                ]
+            },
+            {
+                question: "Un servidor experimenta un promedio de 2 caídas por día. Asumiendo una distribución de Poisson, ¿cuál es el parámetro \\(\\lambda\\) apropiado si queremos calcular la probabilidad de que el servidor se caiga exactamente 5 veces en una semana (7 días)?",
+                hint: "En Poisson, la tasa \\(\\lambda\\) es proporcional a la longitud del intervalo de observación. Ajusta la tasa diaria al nuevo intervalo temporal.",
+                options: [
+                    { text: "\\(\\lambda = 2\\)", rationale: "Esta es la tasa para un intervalo de un solo día. Debemos ajustarla al nuevo intervalo (una semana).", isCorrect: false },
+                    { text: "\\(\\lambda = 5\\)", rationale: "Este es el valor puntual \\(k\\) que queremos evaluar en la fórmula, no el parámetro poblacional \\(\\lambda\\).", isCorrect: false },
+                    { text: "\\(\\lambda = 14\\)", rationale: "Correcto. La tasa promedio es directamente proporcional al intervalo: 2 caídas/día \\(\\times\\) 7 días = 14 caídas/semana.", isCorrect: true },
+                    { text: "\\(\\lambda = 7\\)", rationale: "Este es simplemente el número de días del intervalo, sin considerar la tasa diaria original de caídas.", isCorrect: false }
+                ]
+            },
+            {
+                question: "Al utilizar la aproximación Normal para una distribución de Poisson con un promedio muy grande (ej. \\(\\lambda = 100\\)), ¿cuáles serán los valores teóricos de la media (\\(\\mu\\)) y la varianza (\\(\\sigma^2\\)) de la distribución Normal resultante?",
+                hint: "Recuerda la propiedad fundamental que caracteriza y define de manera única a los momentos de una distribución de Poisson.",
+                options: [
+                    { text: "\\(\\mu = 100\\), \\(\\sigma^2 = 10\\)", rationale: "Aquí 10 corresponde a la desviación estándar (\\(\\sigma = \\sqrt{100}\\)), pero la pregunta solicita explícitamente la varianza.", isCorrect: false },
+                    { text: "\\(\\mu = 100\\), \\(\\sigma^2 = 100\\)", rationale: "Correcto. Una de las propiedades clave de la distribución de Poisson es que su media (\\(\\mu\\)) y su varianza (\\(\\sigma^2\\)) son idénticas e iguales al parámetro \\(\\lambda\\).", isCorrect: true },
+                    { text: "\\(\\mu = 10\\), \\(\\sigma^2 = 10\\)", rationale: "Has extraído la raíz cuadrada de la media, lo cual es matemáticamente incorrecto al aproximar los parámetros.", isCorrect: false },
+                    { text: "\\(\\mu = 100\\), \\(\\sigma^2 = 50\\)", rationale: "No existe una base estadística para dividir la varianza a la mitad en esta aproximación.", isCorrect: false }
+                ]
+            }
+        ];
+
+        const container = document.getElementById('quiz-container');
+        let score = 0;
+        let answeredQuestions = 0;
+
+        function renderQuiz() {
+            quizData.forEach((q, qIndex) => {
+                // Shuffle options
+                const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+                const qDiv = document.createElement('div');
+                qDiv.className = "mb-10 pb-8 border-b border-gray-200 last:border-0";
+                
+                let html = `
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="bg-rose-100 text-rose-800 font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1">${qIndex + 1}</div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${q.question}</h3>
+                            <button onclick="toggleHint(${qIndex})" class="text-xs text-rose-600 font-medium hover:underline focus:outline-none flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Ver Pista
+                            </button>
+                            <p id="hint-${qIndex}" class="hidden text-sm text-gray-500 italic mt-2 bg-gray-50 p-2 rounded border-l-2 border-rose-300">${q.hint}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12" id="options-${qIndex}">
+                `;
+
+                shuffledOptions.forEach((opt, optIndex) => {
+                    // Evitar problemas de comillas escapando datos
+                    const optData = encodeURIComponent(JSON.stringify({
+                        isCorrect: opt.isCorrect,
+                        rationale: opt.rationale
+                    }));
+
+                    html += `
+                        <button id="btn-${qIndex}-${optIndex}" onclick="checkAnswer(${qIndex}, ${optIndex}, '${optData}')" class="option-btn text-left p-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm">
+                            ${opt.text}
+                        </button>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div id="feedback-${qIndex}" class="hidden mt-4 pl-12 p-4 rounded-lg text-sm font-medium"></div>
+                `;
+
+                qDiv.innerHTML = html;
+                container.appendChild(qDiv);
+            });
+        }
+
+        function toggleHint(qIndex) {
+            const hintEl = document.getElementById(`hint-${qIndex}`);
+            hintEl.classList.toggle('hidden');
+        }
+
+        function checkAnswer(qIndex, optIndex, encodedData) {
+            const data = JSON.parse(decodeURIComponent(encodedData));
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.querySelectorAll('button');
+            const feedbackEl = document.getElementById(`feedback-${qIndex}`);
+            const selectedBtn = document.getElementById(`btn-${qIndex}-${optIndex}`);
+
+            // Deshabilitar botones de esta pregunta
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-not-allowed', 'opacity-60');
+            });
+
+            // Resaltar respuesta seleccionada
+            selectedBtn.classList.remove('opacity-60', 'hover:bg-gray-50');
+            
+            if (data.isCorrect) {
+                selectedBtn.classList.add('option-correct');
+                feedbackEl.classList.add('bg-green-50', 'text-green-800', 'border', 'border-green-200');
+                feedbackEl.innerHTML = `<strong>¡Correcto!</strong> ${data.rationale}`;
+                score++;
+            } else {
+                selectedBtn.classList.add('option-incorrect');
+                feedbackEl.classList.add('bg-red-50', 'text-red-800', 'border', 'border-red-200');
+                feedbackEl.innerHTML = `<strong>Incorrecto.</strong> ${data.rationale}`;
+            }
+
+            feedbackEl.classList.remove('hidden');
+            
+            // Volver a renderizar matemáticas por si hay fórmulas en el feedback
+            renderMathInElement(feedbackEl, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+
+            answeredQuestions++;
+
+            // Comprobar si terminó
+            if (answeredQuestions === quizData.length) {
+                setTimeout(showFinalScore, 500);
+            }
+        }
+
+        function showFinalScore() {
+            const resultsEl = document.getElementById('results-container');
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.innerText = `${score} / ${quizData.length}`;
+            resultsEl.classList.remove('hidden');
+            
+            // Scroll al final
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Inicializar
+        renderQuiz();
+    </script>
+</body>
+</html>
